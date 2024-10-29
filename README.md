@@ -40,14 +40,16 @@ Edit the config.json file to specify how files and folders should be included in
 | `"/": "root/*"` | copy all contents from `source/root/` to `build/` |
 | `"buss-website/": "https://github.com/daniilgrydin/buss-website.git"` | pull buss-website repository from github to `build/buss-website/` |
 
+> Please note that you can use both HTML and Markdown (MD) files. However, if you choose to use Markdown, you must specify the wrapper file.
+
 ### Custom Tags
 
 To perform actions within your files, use the following custom tags:
 
 | Tag | Action |
 | --- | ------ |
-| `<INCLUDE src="file"/>` | include contents of the file in the place of the tag |
-| `<WRAP type="type"/>` | wraps the contents of the file in `source/templates/`*`type`*`.html` |
+| `<INCLUDE src="styles/example.css"/>` | include contents of the file in the place of the tag |
+| `<WRAP type="template"/>` | wraps the contents of the file in `source/templates/`*`template`*`.html` |
 | `<CONTENT/>` | indicates where the wrapper should include the contents |
 | `<META key="value" key1="value2"/>` | for content. save `value` in `key` for later access in wrapper |
 | `<PARAM type="key"/>` | for wrapper. accessing `value` from content file |
