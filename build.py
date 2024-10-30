@@ -8,12 +8,11 @@ import subprocess
 from urllib.parse import urlparse
 import markdown
 from markdown.extensions.tables import TableExtension
+from markdown.extensions.codehilite import CodeHiliteExtension
 import stat
 
 classes = {}
 ids = {}
-
-print(len(string.ascii_letters + string.digits))
 
 class Compiler:
     def __init__(self, contents, destination=None):
@@ -21,11 +20,12 @@ class Compiler:
         self.destination = destination
 
     def condense_html(self):
-        self.contents = self.contents.replace('\n', ' ')
-        self.contents = self.contents.replace('  ', ' ')
-        self.contents = self.contents.replace('  ', ' ')
-        self.contents = self.contents.replace('  ', ' ')
-        self.contents = self.contents.replace('/> <', '/><')
+        # self.contents = self.contents.replace('\n', ' ')
+        # self.contents = self.contents.replace('  ', ' ')
+        # self.contents = self.contents.replace('  ', ' ')
+        # self.contents = self.contents.replace('  ', ' ')
+        # self.contents = self.contents.replace('/> <', '/><')
+        pass
 
     def random_string(self, length=6):
         return random.choice(string.ascii_letters) + ''.join(random.choices(string.ascii_letters + string.digits, k=length-1))
@@ -61,7 +61,7 @@ class Compiler:
 
         for match in matches:
             file = File(f"source/{match}")
-            self.contents = re.sub(r'<INCLUDE src="([^"]+)" ?\/>', file.contents, self.contents)
+            self.contents = self.contents.replace(f'<INCLUDE src="{match}"/>', file.contents)
 
     def apply_wrap_rule(self):
         embed_pattern = re.compile(r'<WRAP type="([^"]+)"/>')
@@ -91,7 +91,7 @@ class Compiler:
     def apply_template(self, template):
         tags = self.extract_meta_tags()
 
-        self.contents = markdown.markdown(self.contents, extensions=[TableExtension()])
+        self.contents = markdown.markdown(self.contents, extensions=[TableExtension(), 'fenced_code'])
 
         # Regex to match <img> tags with any attributes
         img_pattern = re.compile(r'<p>(<img[^>]+/>)</p>')
@@ -100,7 +100,7 @@ class Compiler:
         wrapper = File(f'source\\templates\\{template}.html')
         wrapper.contents = wrapper.contents.replace('<CONTENT/>', self.contents)
         self.contents = wrapper.contents
-        print(tags)
+
         for key, value in tags.items():
             self.contents = self.contents.replace(f'<PARAM type="{key}"/>', value)
         if self.destination is not None:
@@ -122,6 +122,7 @@ class File:
     def __init__(self, src_path, dst_path=None):
         self.src_path = src_path
         self.dst_path = dst_path
+        print("Reading file from", src_path)
         self.read()
         self.compile()
         self.compose_dependencies()
@@ -129,9 +130,12 @@ class File:
     def save(self, dst_path=None):
         if dst_path is None:
             dst_path = self.dst_path
+        print(f"Copying file from {self.src_path} to {dst_path}")
         with open(dst_path, 'w') as file:
             file.write(self.contents)
         for dependency in self.dependencies:
+            dependency = dependency.replace('/', '\\')
+            print(f"Copied dependency from {dependency} to {dependency.replace('source\\', 'build\\')}")
             shutil.copy(dependency, dependency.replace('source\\', 'build\\'))
     
     def read(self):
@@ -208,7 +212,6 @@ def copy_files(config):
         if(source[-1] == '*'):
             #copy the whole directory
             source = source[:-1]
-            print(source, destination)
             shutil.copytree(source, destination, dirs_exist_ok=True)
 
         if os.path.isfile(source):

@@ -32,7 +32,6 @@ Edit the config.json file to specify how files and folders should be included in
 }
 ```
 
-
 | config.json | Explanation |
 | ----------- | ----------- |
 | `"blog/example.html": "public/blog.html"` | copy `source/public/blog.html` to `build/blog/example/html` |
@@ -72,6 +71,47 @@ To build your project, run the following command:
 ```bash
 python build.py
 ```
+
+### Running Example
+
+To see Veles in action, follow these steps to build a simple example project:
+
+#### 1. Build the Project
+
+Run the following command in your terminal:
+
+```bash
+python build.py
+```
+
+#### 2. Project Structure
+
+After running the build command, the following components will be generated:
+
+- robots.txt: This file is located in the root/ folder and is copied to the build output.
+- index.html: This file is generated in the build/ directory and includes content from utils/example.md.
+
+#### 3. Template and Styling
+
+- Template Usage: The build/index.html is created using the source/templates/template.html wrapper.
+- Styling: The template utilizes the <INCLUDE> tag to insert styles from styles/example.css, ensuring the final HTML file is properly styled.
+
+#### 4. Output
+
+After the build process, your build/ directory will contain:
+
+- index.html
+- robots.txt
+
+You can open build/index.html in your browser to view the result!
+
+### Starting new project
+
+If you want to start a scratch project, you can delete the following files:
+
+- Any existing files in the root/ folder (except robots.txt if you want to keep it).
+- All files in the utils/ folder.
+- Any templates in the templates/ folder you don’t need.
 
 ## Contributing
 
