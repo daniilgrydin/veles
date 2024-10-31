@@ -20,9 +20,19 @@ cd veles
 pip install -r requirements.txt
 ```
 
-### Configuration
+### Settings
 
-Edit the config.json file to specify how files and folders should be included in the build:
+Settings contains information about your web-applicatio:
+```json
+{
+    "domain": "www.domain_name.com", // Domain name of your web-application. Used for sitemap.
+    "generate_sitemap": true // Tells compiler whether to generate sitemap or not
+}
+```
+
+### Mappings
+
+Edit the mappings.json file to specify how files and folders should be included in the build:
 ```json
 {
     "blog/example.html": "public/blog.html",
@@ -32,7 +42,7 @@ Edit the config.json file to specify how files and folders should be included in
 }
 ```
 
-| config.json | Explanation |
+| mappings.json | Explanation |
 | ----------- | ----------- |
 | `"blog/example.html": "public/blog.html"` | copy `source/public/blog.html` to `build/blog/example/html` |
 | `"blogs/": "blog_files/"` | copy html, md, and files referenced from `source/blog_files/` to `build/blogs/` |

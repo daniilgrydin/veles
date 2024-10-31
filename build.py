@@ -10,9 +10,11 @@ import markdown
 from markdown.extensions.tables import TableExtension
 from markdown.extensions.codehilite import CodeHiliteExtension
 import stat
+import datetime
 
 classes = {}
 ids = {}
+pages = []
 
 class Compiler:
     def __init__(self, contents, destination=None):
@@ -133,6 +135,7 @@ class File:
         print(f"Copying file from {self.src_path} to {dst_path}")
         with open(dst_path, 'w') as file:
             file.write(self.contents)
+        pages.append(dst_path)
         for dependency in self.dependencies:
             dependency = dependency.replace('/', '\\')
             print(f"Copied dependency from {dependency} to {dependency.replace('source\\', 'build\\')}")
@@ -168,7 +171,7 @@ class File:
         self.contents = compiler.contents
 
 
-def read_config(file_path):
+def read_json(file_path):
     with open(file_path, 'r') as file:
         return json.load(file)
 
@@ -196,8 +199,8 @@ def is_github_repo_link(url):
         return True
     return False
 
-def copy_files(config):
-    for destination, source in config.items():
+def copy_files(mappings):
+    for destination, source in mappings.items():
         source = source.replace('/', '\\')
         destination = destination.replace('/', '\\')
 
@@ -219,6 +222,15 @@ def copy_files(config):
         elif os.path.isdir(source):
             handle_directory(source, destination)
 
+def generate_sitemap(settings):
+    sitemap = '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    today_date = datetime.date.today().isoformat()
+    for page in pages:
+        sitemap += f'<url><loc>https://{settings["domain"]}/{page}</loc><lastmod>{today_date}</lastmod></url>'
+    sitemap += '</urlset>'
+    with open('build/sitemap.xml', 'w') as file:
+        file.write(sitemap)
+
 def handle_remove_readonly(func, path, exc_info):
     # Attempt to change the file permissions and retry the operation
     os.chmod(path, stat.S_IWRITE)
@@ -230,7 +242,9 @@ def clear_build():
     os.makedirs('build')
 
 if __name__ == "__main__":
-    config_path = 'config.json'
-    config = read_config(config_path)
+    mappings = read_json('mappings.json')
     clear_build()
-    copy_files(config)
+    copy_files(mappings)
+    settings = read_json('settings.json')
+    if settings["generate_sitemap"]:
+        generate_sitemap(settings)
